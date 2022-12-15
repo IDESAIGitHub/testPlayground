@@ -46,7 +46,7 @@ void add(classtest* c) {
 
 int main()
 {
-	/*
+	
 	//WEIDMULLER
 	modbus_t* ctx;
     ctx = modbus_new_tcp("192.168.111.125", 502);
@@ -110,8 +110,9 @@ int main()
 	//close
 	modbus_close(ctx);
 	modbus_free(ctx);
-	*/
 	
+	
+	/*
 	//VIPA	
 	modbus_t* ctx;
 	ctx = modbus_new_tcp("192.168.112.100", 502);
@@ -174,6 +175,7 @@ int main()
 	//close
 	modbus_close(ctx);
 	modbus_free(ctx);
-	
+	*/
+
     return 0;
 }
