@@ -1,63 +1,79 @@
 // testPlayground.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include <ctime>
-#include <chrono>
+
+#include "Front.h"
+
+
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 #include <iostream>
-#include <vector>
-#include <thread>
-
-#include "modbus.h"
-
-class dos {
-public:
-	int a;
-	dos() {
-		a = 0;
-	}
-	dos(int rec) {
-		a = rec;
-	}
-};
-
-class uno {
-public:
-	int u1;
-	uno(){
-		u1 = 0; 
-	}
-	std::vector <dos*> dosVec;
-};
-
-int printDos(std::vector<dos*> dosvec) {
-	for (int i = 0; i < dosvec.size(); i++){
-		std::cout << dosvec[i]->a << std::endl; 
-	}
-	return 0; 
-}
-
-int repushDos(std::vector<dos*>& dosvec) {
-	dosvec.push_back(new dos(dosvec.size()));
-	return 0;
-}
-
-int pushDos(std::vector<dos*>& dosvec) {
-	dosvec.push_back(new dos(dosvec.size())); 
-	repushDos(dosvec);
-	return 0; 
-}
 
 
 int main()
 {
-	std::vector<uno*> unoVec;
-	unoVec.push_back(new uno());
-	unoVec[0]->dosVec.push_back(new dos());
-	
-	pushDos(unoVec[0]->dosVec);
-	pushDos(unoVec[0]->dosVec);
-	
-	printDos(unoVec[0]->dosVec);
-
+    
+	std::cout << "Hello World!\n";
+    cv::VideoCapture vcap;
+    //mi movil sin pw(funciona)
+    //const std::string videoStreamAddress = "http://192.168.0.27:8080/video";
+    
+    //mi movil con pw(funciona)
+    //const std::string videoStreamAddress = "http://rchone:1234@192.168.0.27:8080/video";
+    
+    //const std::string videoStreamAddress = "http://192.168.0.50:18320/video?x.mjpeg";
+    // NNNhttp://USER:PWD@IPADDRESS:8088/mjpeg.cgi?user=USERNAME&password=PWD&channel=0&.mjpg
+    
+    
+    const std::string videoStreamAddress = "http://admin:admin@192.168.0.50:8080/video";
+    
+    //open the video stream and make sure it's opened
+    if (!vcap.open(videoStreamAddress)) {
+        std::cout << "\nError opening video stream or file\n";
+        return -1;
+    }
+    cv::namedWindow("First OpenCV Application", cv::WINDOW_AUTOSIZE);
+    int key = 0;
+	cv::Mat frame;
+    while (true)
+    {
+		bool s = vcap.read(frame);
+        if (!s) {
+            std::cout << "Can't read";
+            break;
+        }
+        cv::imshow("guapisimos", frame);
+        
+        if (cv::waitKey(30) == 27) {
+            std::cout << "Bye bitch!\n";
+            break;
+        }
+    }
+    cv::destroyAllWindows();
+    return 0;
+    
+   
+    /*
+    //play Black Adam Trailer
+    using namespace cv;
+    Mat frame;
+    VideoCapture cap = VideoCapture("Images//Rock.mp4");
+    if (!cap.isOpened()) {
+        std::cout << "Error opening video stream or file\n";
+    }
+    bool finish = true;
+    while (finish)
+    {
+        finish = cap.read(frame);
+        cv::imshow("guapisimos", frame);
+        if (cv::waitKey(30) == 27) {
+            std::cout << "Bye bitch!\n";
+            finish = false;
+        }
+    }
+    cv::destroyAllWindows();
+    */
     return 0;
 }
