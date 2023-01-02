@@ -114,13 +114,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\practicas\source\repos\DegenerateFinance\libmodbus\libmodbus;C:\Users\practicas\source\repos\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\practicas\source\repos\DegenerateFinance\libmodbus\libmodbus;C:\Users\Ricardo\source\repos\opencv\build\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\practicas\source\repos\DegenerateFinance\libmodbus\$(IntDir);..\..\libmodbus\$(IntDir);C:\Users\practicas\source\repos\opencv\build\x64\vc15\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\libmodbus\$(IntDir);C:\Users\Ricardo\source\repos\opencv\build\x64\vc15\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;opencv_world460d.lib;libmodbus.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -136,7 +136,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\practicas\source\repos\DegenerateFinance\libmodbus\libmodbus;C:\Users\practicas\source\repos\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\practicas\source\repos\DegenerateFinance\libmodbus\libmodbus;C:\Users\Ricardo\source\repos\opencv\build\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -144,7 +144,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\libmodbus\$(IntDir);C:\Users\practicas\source\repos\opencv\build\x64\vc15\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\libmodbus\$(IntDir);C:\Users\Ricardo\source\repos\opencv\build\x64\vc15\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;opencv_world460.lib;</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
