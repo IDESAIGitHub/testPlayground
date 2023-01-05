@@ -28,21 +28,23 @@ using namespace std::chrono;
 
 int main()
 {
-    cv::namedWindow("Webcam", cv::WINDOW_AUTOSIZE);
+    
     
     char a = 2;
     
     // open the first webcam plugged in the computer
     auto start = high_resolution_clock::now();
     cv::VideoCapture camera;
-    camera.set(CAP_PROP_BUFFERSIZE, 3); // internal buffer will now store only 3 frames
+    camera.set(cv::CAP_PROP_BUFFERSIZE, 3);
     
     //my phone
     //const char* address = "http://rchone:1234@192.168.0.16:8080/video?x.mjpeg";
 
-    //const char* address = "http://192.168.0.27:8080/video?x.mjpeg";
-    //const char* address = "rtsp://admin:123456@192.168.0.27:554";
-    const char* address = "http://admin:123456@192.168.0.27/video";
+
+    //ip camera tests
+    //const char* address = "rtsp://admin:123456@192.168.0.27:554/live/mpeg4";
+    const char* address = "rtsp://admin:123456@192.168.123.123:554/live/mpeg4";
+
     if (!camera.open(address)) {
                std::cout << "\nError opening video stream or file\n";
                return -1;
@@ -50,14 +52,15 @@ int main()
     auto stop = high_resolution_clock::now();
     cv::Mat frame;
 
-	std::cin >> a;
+    cv::namedWindow("Webcam", cv::WINDOW_AUTOSIZE);
+	//std::cin >> a;
     // display the frame until you press a key
     while (1) {
         // show the image on the window
         camera >> frame;
         cv::imshow("Webcam", frame);
         // wait (10ms) for a key to be pressed
-        if (cv::waitKey(10) == 's') {
+        if (cv::waitKey(1) == 's') {
             //save image to file
 			cv::imwrite("test.jpg", frame);
 			break;
