@@ -491,43 +491,43 @@ int rs232::openComport(unsigned portIdx,
     }
 
     switch (baudrate) {
-        case 110: strncpy(modeStr, "baud=110", modeStrLen);
+        case 110: strncpy_s(modeStr, "baud=110", modeStrLen);
             break;
-        case 300: strncpy(modeStr, "baud=300", modeStrLen);
+        case 300: strncpy_s(modeStr, "baud=300", modeStrLen);
             break;
-        case 600: strncpy(modeStr, "baud=600", modeStrLen);
+        case 600: strncpy_s(modeStr, "baud=600", modeStrLen);
             break;
-        case 1200: strncpy(modeStr, "baud=1200", modeStrLen);
+        case 1200: strncpy_s(modeStr, "baud=1200", modeStrLen);
             break;
-        case 2400: strncpy(modeStr, "baud=2400", modeStrLen);
+        case 2400: strncpy_s(modeStr, "baud=2400", modeStrLen);
             break;
-        case 4800: strncpy(modeStr, "baud=4800", modeStrLen);
+        case 4800: strncpy_s(modeStr, "baud=4800", modeStrLen);
             break;
-        case 9600: strncpy(modeStr, "baud=9600", modeStrLen);
+        case 9600: strncpy_s(modeStr, "baud=9600", modeStrLen);
             break;
-        case 19200: strncpy(modeStr, "baud=19200", modeStrLen);
+        case 19200: strncpy_s(modeStr, "baud=19200", modeStrLen);
             break;
-        case 38400: strncpy(modeStr, "baud=38400", modeStrLen);
+        case 38400: strncpy_s(modeStr, "baud=38400", modeStrLen);
             break;
-        case 57600: strncpy(modeStr, "baud=57600", modeStrLen);
+        case 57600: strncpy_s(modeStr, "baud=57600", modeStrLen);
             break;
-        case 115200: strncpy(modeStr, "baud=115200", modeStrLen);
+        case 115200: strncpy_s(modeStr, "baud=115200", modeStrLen);
             break;
-        case 128000: strncpy(modeStr, "baud=128000", modeStrLen);
+        case 128000: strncpy_s(modeStr, "baud=128000", modeStrLen);
             break;
-        case 256000: strncpy(modeStr, "baud=256000", modeStrLen);
+        case 256000: strncpy_s(modeStr, "baud=256000", modeStrLen);
             break;
-        case 500000: strncpy(modeStr, "baud=500000", modeStrLen);
+        case 500000: strncpy_s(modeStr, "baud=500000", modeStrLen);
             break;
-        case 921600: strncpy(modeStr, "baud=921600", modeStrLen);
+        case 921600: strncpy_s(modeStr, "baud=921600", modeStrLen);
             break;
-        case 1000000: strncpy(modeStr, "baud=1000000", modeStrLen);
+        case 1000000: strncpy_s(modeStr, "baud=1000000", modeStrLen);
             break;
-        case 1500000: strncpy(modeStr, "baud=1500000", modeStrLen);
+        case 1500000: strncpy_s(modeStr, "baud=1500000", modeStrLen);
             break;
-        case 2000000: strncpy(modeStr, "baud=2000000", modeStrLen);
+        case 2000000: strncpy_s(modeStr, "baud=2000000", modeStrLen);
             break;
-        case 3000000: strncpy(modeStr, "baud=3000000", modeStrLen);
+        case 3000000: strncpy_s(modeStr, "baud=3000000", modeStrLen);
             break;
         default:
             std::cout << "Invalid baudrate.\n";
@@ -540,13 +540,13 @@ int rs232::openComport(unsigned portIdx,
     }
 
     switch (mode[0]) {
-        case '8': strncat(modeStr, " data=8", 8);
+        case '8': strncat_s(modeStr, " data=8", 8);
             break;
-        case '7': strncat(modeStr, " data=7", 8);
+        case '7': strncat_s(modeStr, " data=7", 8);
             break;
-        case '6': strncat(modeStr, " data=6", 8);
+        case '6': strncat_s(modeStr, " data=6", 8);
             break;
-        case '5': strncat(modeStr, " data=5", 8);
+        case '5': strncat_s(modeStr, " data=5", 8);
             break;
         default:
             std::cout << "Invalid number of data-bits '" << static_cast<char> (mode[0]) << "'.\n";
@@ -555,13 +555,13 @@ int rs232::openComport(unsigned portIdx,
 
     switch (mode[1]) {
         case 'N':
-        case 'n': strncat(modeStr, " parity=n", 10);
+        case 'n': strncat_s(modeStr, " parity=n", 10);
             break;
         case 'E':
-        case 'e': strncat(modeStr, " parity=e", 10);
+        case 'e': strncat_s(modeStr, " parity=e", 10);
             break;
         case 'O':
-        case 'o': strncat(modeStr, " parity=o", 10);
+        case 'o': strncat_s(modeStr, " parity=o", 10);
             break;
         default:
             std::cout << "Invalid parity '" << static_cast<char> (mode[1]) << "'.\n";
@@ -569,9 +569,9 @@ int rs232::openComport(unsigned portIdx,
     }
 
     switch (mode[2]) {
-        case '1': strncat(modeStr, " stop=1", 8);
+        case '1': strncat_s(modeStr, " stop=1", 8);
             break;
-        case '2': strncat(modeStr, " stop=2", 8);
+        case '2': strncat_s(modeStr, " stop=2", 8);
             break;
         default:
             std::cout << "Invalid number of stop bits '" << static_cast<char> (mode[1]) << "'.\n";
@@ -579,9 +579,9 @@ int rs232::openComport(unsigned portIdx,
     }
 
     if (enableFlowCtrl) {
-        strncat(modeStr, " xon=off to=off odsr=off dtr=on rts=off", 40);
+        strncat_s(modeStr, " xon=off to=off odsr=off dtr=on rts=off", 40);
     } else {
-        strncat(modeStr, " xon=off to=off odsr=off dtr=on rts=on", 39);
+        strncat_s(modeStr, " xon=off to=off odsr=off dtr=on rts=on", 39);
     }
 
     /*

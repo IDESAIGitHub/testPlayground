@@ -48,6 +48,9 @@
     <ClCompile Include="Front.cpp">
       <Filter>FrontTest</Filter>
     </ClCompile>
+    <ClCompile Include="rs232.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -76,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="Front.h">
       <Filter>FrontTest</Filter>
+    </ClInclude>
+    <ClInclude Include="rs232.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
