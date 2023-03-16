@@ -17,6 +17,7 @@ using namespace std::chrono;
 
 
 #include "rs232.h"
+#include "rs232lib.h"
 #include <Windows.h>
 
 //int main() {
@@ -46,48 +47,68 @@ using namespace std::chrono;
 //	return 0;
 //}
 
+
  //RS232 test
 int main() {
-    int i;
-    int n;
-    int cPortNr = 4; /* COM5 */
-    int bdrate = 9600; /* 9600 baud */
-    constexpr size_t bufLen = 4096;
-    unsigned char buf[bufLen];
+	
+	// Rx
+ //   int cPortNr = 1; /* COM2 */
+ //   int bdrate = 9600; /* 9600 baud */
+ //   
+	//char mode[] = { '8', 'N', '1', 0 };
+	////std::string mode = "8N1";
+  //  if (rs232::openComport(cPortNr, bdrate, modeStr, 0)) {
+  //      printf("Can not open comport\n");
 
-    char mode[] = {'8', 'N', '1', 0};
+  //      return (0);
+  //  }
 
+  //  while (1) {
+		//auto start = high_resolution_clock::now();
+  //      n = rs232::pollComport(cPortNr, buf, bufLen - 1);
 
-    if (rs232::openComport(cPortNr, bdrate, mode, 0)) {
-        printf("Can not open comport\n");
+  //      if (n > 0) {
+		//	auto stop = high_resolution_clock::now();
+  //          buf[n] = 0; /* always put a "null" at the end of a string! */
 
-        return (0);
-    }
+  //          for (i = 0; i < n; i++) {
+  //              if (buf[i] < 32) /* replace unreadable control-codes by dots */ {
+  //                  buf[i] = '.';
+  //              }
+  //          }
 
-    while (1) {
-		auto start = high_resolution_clock::now();
-        n = rs232::pollComport(cPortNr, buf, bufLen - 1);
+  //          printf("received %i bytes: %s\n", n, (char*)buf);
+		//	cout << "Time taken by function: "
+		//		<< duration_cast<microseconds>(stop - start).count()
+		//		<< " microseconds" << endl;
+  //      }
 
-        if (n > 0) {
-			auto stop = high_resolution_clock::now();
-            buf[n] = 0; /* always put a "null" at the end of a string! */
+  //      Sleep(10);
 
-            for (i = 0; i < n; i++) {
-                if (buf[i] < 32) /* replace unreadable control-codes by dots */ {
-                    buf[i] = '.';
-                }
-            }
+  //  }
+	
+	//test with rs232lib
+	std::string port = "COM3";
+	int baudrate = 9600;
+	std::string mode = "7N1";
+	try
+	{
+		rs232lib manager_COM2(port, baudrate, mode);
+		while (true)
+		{
+			manager_COM2.write("Hello World!\n");
+			Sleep(5000);
+			std::string msg = manager_COM2.read();
+			std::cout << msg << std::endl;
 
-            printf("received %i bytes: %s\n", n, (char*)buf);
-			cout << "Time taken by function: "
-				<< duration_cast<microseconds>(stop - start).count()
-				<< " microseconds" << endl;
-        }
+			Sleep(5000);
+		}
+	}
+	catch (const std::exception&)
+	{
 
-        Sleep(10);
-
-    }
-    return (0);
+	}
+    return 0;
 }
 
 

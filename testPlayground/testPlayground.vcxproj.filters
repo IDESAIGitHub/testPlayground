@@ -49,7 +49,10 @@
       <Filter>FrontTest</Filter>
     </ClCompile>
     <ClCompile Include="rs232.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rs232lib.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +84,9 @@
       <Filter>FrontTest</Filter>
     </ClInclude>
     <ClInclude Include="rs232.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rs232lib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
