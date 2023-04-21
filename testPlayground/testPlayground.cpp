@@ -16,100 +16,147 @@ using namespace std;
 using namespace std::chrono;
 
 
+#include <stdlib.h>
+#include <iostream>
+
+#include "mysql_connection.h"
+#include <cppconn/driver.h>
+#include <cppconn/exception.h>
+#include <cppconn/prepared_statement.h>
+
 #include "rs232.h"
 #include "rs232lib.h"
 #include <Windows.h>
 
-//int main() {
-//
-//	std::cout << "Hello World!\n";
-//	std::vector<int> vect1{ 1, 2, 3, 4 };
-//	std::vector<int> vect2;
-//	std::vector<int> vect3;
-//
-//	vect3 = vect2;
-//	
-//	cout << "Vector 1 : ";
-//	for (int i = 0; i < vect1.size(); i++)
-//		cout << vect1[i] << " ";
-//	cout << endl;
-//	
-//	cout << "Vector 2 : ";
-//	for (int i = 0; i < vect2.size(); i++)
-//		cout << vect2[i] << " ";
-//	cout << endl;
-//
-//	cout << "Vector 3 : ";
-//	for (int i = 0; i < vect3.size(); i++)
-//		cout << vect3[i] << " ";
-//	cout << endl;
-//	
-//	return 0;
-//}
+const string server = "tcp://localhost:3306";
+const string username = "root";
+const string password = "root";
 
 
- //RS232 test
 int main() {
+
+	std::cout << "Hello World!\n";
+	std::vector<int> vect1{ 1, 2, 3, 4 };
+	std::vector<int> vect2;
+	std::vector<int> vect3;
+
+	vect3 = vect2;
 	
-	// Rx
- //   int cPortNr = 1; /* COM2 */
- //   int bdrate = 9600; /* 9600 baud */
- //   
-	//char mode[] = { '8', 'N', '1', 0 };
-	////std::string mode = "8N1";
-  //  if (rs232::openComport(cPortNr, bdrate, modeStr, 0)) {
-  //      printf("Can not open comport\n");
-
-  //      return (0);
-  //  }
-
-  //  while (1) {
-		//auto start = high_resolution_clock::now();
-  //      n = rs232::pollComport(cPortNr, buf, bufLen - 1);
-
-  //      if (n > 0) {
-		//	auto stop = high_resolution_clock::now();
-  //          buf[n] = 0; /* always put a "null" at the end of a string! */
-
-  //          for (i = 0; i < n; i++) {
-  //              if (buf[i] < 32) /* replace unreadable control-codes by dots */ {
-  //                  buf[i] = '.';
-  //              }
-  //          }
-
-  //          printf("received %i bytes: %s\n", n, (char*)buf);
-		//	cout << "Time taken by function: "
-		//		<< duration_cast<microseconds>(stop - start).count()
-		//		<< " microseconds" << endl;
-  //      }
-
-  //      Sleep(10);
-
-  //  }
+	cout << "Vector 1 : ";
+	for (int i = 0; i < vect1.size(); i++)
+		cout << vect1[i] << " ";
+	cout << endl;
 	
-	//test with rs232lib
-	std::string port = "COM3";
-	int baudrate = 9600;
-	std::string mode = "7N1";
+	cout << "Vector 2 : ";
+	for (int i = 0; i < vect2.size(); i++)
+		cout << vect2[i] << " ";
+	cout << endl;
+
+	cout << "Vector 3 : ";
+	for (int i = 0; i < vect3.size(); i++)
+		cout << vect3[i] << " ";
+	cout << endl;
+	
+	
+	sql::Driver* driver;
+	sql::Connection* con;
+	sql::PreparedStatement* pstmt;
+	sql::ResultSet* result;
+
 	try
 	{
-		rs232lib manager_COM2(port, baudrate, mode);
-		while (true)
-		{
-			manager_COM2.write("Hello World!\n");
-			Sleep(5000);
-			std::string msg = manager_COM2.read();
-			std::cout << msg << std::endl;
-
-			Sleep(5000);
-		}
+		driver = get_driver_instance();
+		//for demonstration only. never save password in the code!
+		con = driver->connect(server, username, password);
 	}
-	catch (const std::exception&)
+	catch (sql::SQLException e)
 	{
-
+		cout << "Could not connect to server. Error message: " << e.what() << endl;
+		system("pause");
+		exit(1);
 	}
-    return 0;
+
+	con->setSchema("guillen");
+
+	//select  
+	pstmt = con->prepareStatement("SELECT * FROM guillen.bultos_procesados limit 100;");
+	result = pstmt->executeQuery();
+
+	while (result->next())
+		printf("Reading from table=(%d, %s, %d)\n", result->getInt(1), result->getString(2).c_str(), result->getInt(3));
+
+	delete result;
+	delete pstmt;
+	delete con;
+	system("pause");
+	
+	return 0;
+	
 }
+
+
+// //RS232 test
+//int main() {
+//	
+//	// Rx
+// //   int cPortNr = 1; /* COM2 */
+// //   int bdrate = 9600; /* 9600 baud */
+// //   
+//	//char mode[] = { '8', 'N', '1', 0 };
+//	////std::string mode = "8N1";
+//  //  if (rs232::openComport(cPortNr, bdrate, modeStr, 0)) {
+//  //      printf("Can not open comport\n");
+//
+//  //      return (0);
+//  //  }
+//
+//  //  while (1) {
+//		//auto start = high_resolution_clock::now();
+//  //      n = rs232::pollComport(cPortNr, buf, bufLen - 1);
+//
+//  //      if (n > 0) {
+//		//	auto stop = high_resolution_clock::now();
+//  //          buf[n] = 0; /* always put a "null" at the end of a string! */
+//
+//  //          for (i = 0; i < n; i++) {
+//  //              if (buf[i] < 32) /* replace unreadable control-codes by dots */ {
+//  //                  buf[i] = '.';
+//  //              }
+//  //          }
+//
+//  //          printf("received %i bytes: %s\n", n, (char*)buf);
+//		//	cout << "Time taken by function: "
+//		//		<< duration_cast<microseconds>(stop - start).count()
+//		//		<< " microseconds" << endl;
+//  //      }
+//
+//  //      Sleep(10);
+//
+//  //  }
+//	
+//	//test with rs232lib
+//	std::string port = "COM3";
+//	int baudrate = 9600;
+//	std::string mode = "7N1";
+//	try
+//	{
+//		rs232lib manager_COM2(port, baudrate, mode);
+//		while (true)
+//		{
+//			manager_COM2.write("Hello World!\n");
+//			Sleep(5000);
+//			std::string msg = manager_COM2.read();
+//			std::cout << msg << std::endl;
+//
+//			Sleep(5000);
+//		}
+//	}
+//	catch (const std::exception&)
+//	{
+//
+//	}
+//    return 0;
+//}
 
 
 // OpenCV test
