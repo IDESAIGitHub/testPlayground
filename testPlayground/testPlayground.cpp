@@ -19,15 +19,11 @@ using namespace std::chrono;
 #include <stdlib.h>
 #include <iostream>
 
-#include "mysql_connection.h"
-#include <cppconn/driver.h>
-#include <cppconn/exception.h>
-#include <cppconn/prepared_statement.h>
-
 #include "rs232.h"
 #include "rs232lib.h"
 #include <Windows.h>
 
+#include <mysql.h>
 const string server = "tcp://localhost:3306";
 const string username = "root";
 const string password = "root";
@@ -57,39 +53,39 @@ int main() {
 		cout << vect3[i] << " ";
 	cout << endl;
 	
-	
-	sql::Driver* driver;
-	sql::Connection* con;
-	sql::PreparedStatement* pstmt;
-	sql::ResultSet* result;
+	int qstate = 0;
+	MYSQL* conn;
+	conn = mysql_init(0);
+	conn = mysql_real_connect(conn, "localhost", "root", "root", "guillen", 3306, NULL, 0);
 
-	try
-	{
-		driver = get_driver_instance();
-		//for demonstration only. never save password in the code!
-		con = driver->connect(server, username, password);
+	if (conn) {
+		std::cout << "Connection Succeeded" << std::endl;
 	}
-	catch (sql::SQLException e)
-	{
-		cout << "Could not connect to server. Error message: " << e.what() << endl;
-		system("pause");
-		exit(1);
+	else {
+		std::cout << "Connection Failed" << std::endl;
 	}
-
-	con->setSchema("guillen");
-
-	//select  
-	pstmt = con->prepareStatement("SELECT * FROM guillen.bultos_procesados limit 100;");
-	result = pstmt->executeQuery();
-
-	while (result->next())
-		printf("Reading from table=(%d, %s, %d)\n", result->getInt(1), result->getString(2).c_str(), result->getInt(3));
-
-	delete result;
-	delete pstmt;
-	delete con;
-	system("pause");
+	MYSQL_ROW row;
+	MYSQL_RES* res;
+		
+	//make a test select query
+	std::string query = "SELECT * FROM guillen.bultos_procesados limit 100;";
+	const char* q = query.c_str();
+	qstate = mysql_query(conn, q);
+	if (!qstate)
+	{
+		res = mysql_store_result(conn);
+		while (row = mysql_fetch_row(res))
+		{
+			std::cout << row[0] << " " << row[1] << " " << row[2] << " " << row[3] << std::endl;
+		}
+	}
+	else
+	{
+		std::cout << "Query failed: " << mysql_error(conn) << std::endl;
+	}
 	
+	char a;
+	std::cin >> a;
 	return 0;
 	
 }
