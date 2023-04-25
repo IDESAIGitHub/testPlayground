@@ -236,7 +236,7 @@
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;winmm.lib;libmysql.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy  /y /d /e /i "librerias" "$(OutDir)\librerias"</Command>
+      <Command>xcopy  /y /d /e /i "librerias" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -288,6 +288,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Front.cpp" />
+    <ClCompile Include="GestorMySQL.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -301,6 +302,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Front.h" />
+    <ClInclude Include="GestorMySQL.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_dx11.h" />

@@ -54,6 +54,9 @@
     <ClCompile Include="rs232lib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GestorMySQL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -87,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rs232lib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GestorMySQL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
