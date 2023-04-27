@@ -28,6 +28,7 @@ const string server = "tcp://localhost:3306";
 const string username = "root";
 const string password = "root";
 
+void selectQueryThread(GestorMySQL* gestor, std::string query, MYSQL_RES*& res);
 
 int main() {
 
@@ -53,134 +54,54 @@ int main() {
 		cout << vect3[i] << " ";
 	cout << endl;
 	
-	
-	//int qstate = 0;
-	//MYSQL* conn;
-	//conn = mysql_init(0);
-	//conn = mysql_real_connect(conn, "localhost", "root", "root", "guillen", 3306, NULL, 0);
-
-	//if (conn) {
-	//	std::cout << "Connection Succeeded" << std::endl;
-	//}
-	//else {
-	//	std::cout << "Connection Failed" << std::endl;
-	//}
-	//MYSQL_ROW row;
-	//MYSQL_RES* res;
-	//	
-	////make a test select query
-	//std::string query = "SELECT * FROM guillen.bultos_procesados limit 100;";
-	//const char* q = query.c_str();
-	//qstate = mysql_query(conn, q);
-	//if (!qstate)
-	//{
-	//	res = mysql_store_result(conn);
-	//	std::vector<std::vector<std::string>>* result = new std::vector<std::vector<std::string>>;
-	//	while (row = mysql_fetch_row(res))
-	//	{
-	//		//std::cout << row[0] << " " << row[1] << " " << row[2] << " " << row[3] << std::endl;
-	//		std::vector<std::string> rowVector;
-	//		for (int i = 0; i < mysql_num_fields(res); i++)
-	//		{
-	//			if (row[i] != NULL)
-	//			{
-	//				rowVector.push_back(row[i]);
-	//			}
-	//			else {
-	//				rowVector.push_back("");
-	//			}
-	//		}
-	//		result->push_back(rowVector);
-	//	}
-	//	
-	//	//print the result
-	//	for (int i = 0; i < result->size(); i++)
-	//	{
-	//		for (int j = 0; j < result->at(i).size(); j++)
-	//		{
-	//			std::cout << result->at(i).at(j) << " ";
-	//		}
-	//		std::cout << std::endl;
-	//	}
-	//	
-	//	
-	//	//make a test insert query
-	//	std::string query2 = "INSERT INTO guillen.bultos_procesados (idProcesoGUILLEN, FechaLectura, Global_ID, PosicionPaquete, codigoBarras) VALUES (0, now(), '70', '2', '008');";
-	//	const char* q2 = query2.c_str();
-	//	qstate = mysql_query(conn, q2);
-	//	if (!qstate)
-	//	{
-	//		std::cout << "Insertion succeeded" << std::endl;
-	//	}
-	//	else
-	//	{
-	//		std::cout << "Insertion failed: " << mysql_error(conn) << std::endl;
-	//	}
-	//	
-	//	//make a test update query
-	//	std::string query3 = "UPDATE guillen.bultos_procesados SET PosicionPaquete = '3' WHERE Global_ID = 69;";
-	//	const char* q3 = query3.c_str();
-	//	qstate = mysql_query(conn, q3);
-	//	if (!qstate)
-	//	{
-	//		std::cout << "Update succeeded" << std::endl;
-	//	}
-	//	else
-	//	{
-	//		std::cout << "Update failed: " << mysql_error(conn) << std::endl;
-	//	}
-	//}
-	//else
-	//{
-	//	std::cout << "Query failed: " << mysql_error(conn) << std::endl;
-	//}
-	//
-	////Close conection
-	//mysql_close(conn);
-	
-
-	/*GestorMySQL *gestor;
-	std::vector<std::vector<std::string>>* res = new std::vector<std::vector<std::string>>;
-	gestor->ExecuteSELECTQuery("SELECT * FROM guillen.bultos_procesados limit 100;", res);
-	for (int i = 0; i < res->size(); i++)
-	{
-		for (int j = 0; j < res->at(i).size(); j++)
-		{
-			std::cout << res->at(i).at(j) << " ";
-		}
-		std::cout << std::endl;
-	}*/
-	
-	//GestorMySQL* gestor = new GestorMySQL();
-	//MYSQL_RES* res = new MYSQL_RES();
-	//MYSQL_ROW row;
-	//gestor->ExecuteSELECTQuery("SELECT * FROM guillen.bultos_procesados limit 100;", res);
-	//while (row = mysql_fetch_row(res))
-	//{
-	//	std::cout << gestor->fetchFieldInRow(res, row, "global_id") << " ";
-	//	
-	//	std::cout << mysql_fetch_field_direct(res, 0)->name << std::endl;
-	//	
-	//	for (int i = 0; i < mysql_num_fields(res); i++)
-	//	{
-	//		if (row[i] != NULL)
-	//		{
-	//			std::cout << row[i] << " ";
-	//		}
-	//		else {
-	//			std::cout << "NULL" << " ";
-	//		}
-	//	}
-	//	//std::cout << row[0] << " " << row[1] << " " << row[2] << " " << row[3] << std::endl;
-	//	std::cout << std::endl;
-	//}
-
-
 	GestorMySQL* gestor = new GestorMySQL();
+	
+	MYSQL_RES* res1 = new MYSQL_RES();
 	std::string query = "SELECT Global_ID FROM guillen.bultos_procesados where Global_ID = '69';";
-	std::thread t1(selectQueryThread, gestor, query);
+	std::thread t1(selectQueryThread, gestor, query, std::ref(res1));
+	MYSQL_RES* res2 = new MYSQL_RES();
 	std::string query2 = "SELECT Global_ID FROM guillen.bultos_procesados where Global_ID = '70';";
-	std::thread t2(selectQueryThread, gestor, query2);
+	std::thread t2(selectQueryThread, gestor, query2, std::ref(res2));
+	MYSQL_RES* res3 = new MYSQL_RES();
+	std::string query3 = "SELECT Global_ID FROM guillen.bultos_procesados WHERE INSTR(Global_ID, '001');";
+	std::thread t3(selectQueryThread, gestor, query3, std::ref(res3));
+	MYSQL_RES* res4 = new MYSQL_RES();
+	std::vector<std::string> SelectedColumns{ "Global_ID" , "PosicionPaquete" };
+	std::vector<std::vector<std::string>> SelectWhere{ {"Global_ID", "'0010'"}, {"PosicionPaquete", "1"} };
+	gestor->ExecuteSELECTQuery(SelectedColumns, SelectWhere, "guillen.bultos_procesados", res4);
+	
+	t1.join();
+	t2.join();
+	t3.join();
+	
+	//print result of query 1
+	std::cout << "Result of query 1: " << std::endl;
+	while (MYSQL_ROW row = mysql_fetch_row(res1))
+	{
+		std::cout << row[0] << std::endl;
+	}
+	
+	//print result of query 2
+	std::cout << "Result of query 2: " << std::endl;
+	while (MYSQL_ROW row = mysql_fetch_row(res2))
+	{
+		std::cout << row[0] << std::endl;
+	}
+	
+	//print result of query 3
+	std::cout << "Result of query 3: " << std::endl;
+	while (MYSQL_ROW row = mysql_fetch_row(res3))
+	{
+		std::cout << row[0] << std::endl;
+	}
+	
+	//print result of query 4
+	std::cout << "Result of query 4: " << std::endl;
+	while (MYSQL_ROW row = mysql_fetch_row(res4))
+	{
+		std::cout << row[0] << std::endl;
+	}
+
 	
 	char lett = 0;
 	std::cin >> lett;
@@ -189,10 +110,8 @@ int main() {
 	
 }
 
-void selectQueryThread(GestorMySQL* gestor, std::string query){
-	MYSQL_RES* res = new MYSQL_RES();
-	MYSQL_ROW row;
-	gestor->ExecuteSELECTQuery("SELECT Global_ID FROM guillen.bultos_procesados where Global_ID = '69';", res);
+void selectQueryThread(GestorMySQL* gestor, std::string query, MYSQL_RES*& res) {
+	gestor->ExecuteSELECTQuery(query, res);
 }
 
 // //RS232 test

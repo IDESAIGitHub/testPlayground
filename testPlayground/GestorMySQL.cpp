@@ -63,38 +63,6 @@ bool GestorMySQL::ExecuteNonQuery(std::string query)
 	return false;
 }
 
-bool GestorMySQL::ExecuteSELECTQuery(std::string query, std::vector<std::vector<std::string>>* res)
-{
-	//Para evitar que se ejecuten dos consultas a la vez
-	std::lock_guard<std::mutex> lock(mutex_);
-
-	int qstate = 0;
-	MYSQL_RES* result;
-	MYSQL_ROW row;
-	qstate = mysql_query(conn, query.c_str());
-	if (!qstate)
-	{
-		result = mysql_store_result(conn);
-		int i = 0;
-		while (row = mysql_fetch_row(result))
-		{
-			
-			std::vector<std::string> row_vector;
-			for (int j = 0; j < mysql_num_fields(result); j++) {
-				if (row[j] != NULL)
-				{
-					row_vector.push_back(row[j]);
-				}else
-				{
-					row_vector.push_back("");
-				}
-			}
-			res->push_back(row_vector);
-		}
-		return true;
-	}
-	return false;
-}
 bool GestorMySQL::ExecuteSELECTQuery(std::string query, MYSQL_RES*& res)
 {
 	//Para evitar que se ejecuten dos consultas a la vez
@@ -110,7 +78,7 @@ bool GestorMySQL::ExecuteSELECTQuery(std::string query, MYSQL_RES*& res)
 	return false;
 }
 
-bool GestorMySQL::ExecuteSELECTQuery(std::vector<std::string> SelectedColumns, std::vector<std::vector<std::string>> SelectWhere, std::string table, std::vector<std::vector<std::string>>* res) {
+bool GestorMySQL::ExecuteSELECTQuery(std::vector<std::string> SelectedColumns, std::vector<std::vector<std::string>> SelectWhere, std::string table, MYSQL_RES*& res) {
 	//create the query
 	{
 		std::string query = "SELECT ";
@@ -139,20 +107,6 @@ bool GestorMySQL::ExecuteSELECTQuery(std::vector<std::string> SelectedColumns, s
 	}
 }
 
-//std::string GestorMySQL::fetchFieldInRow(MYSQL_RES* res, MYSQL_ROW row, std::string field)
-//{
-//	MYSQL_FIELD* fields = mysql_fetch_fields(res);
-//	for (int i = 0; i < mysql_num_fields(res); i++)
-//	{
-//		//make this case insensitive
-//		if (fields[i].name == field)
-//		{
-//			return row[i];
-//		}
-//	}
-//	return "";
-//}
-
 std::string GestorMySQL::fetchFieldInRow(MYSQL_RES* res, MYSQL_ROW row, std::string field)
 {
 	// convert field name to lowercase
@@ -170,11 +124,4 @@ std::string GestorMySQL::fetchFieldInRow(MYSQL_RES* res, MYSQL_ROW row, std::str
 		}
 	}
 	return "";
-}
-
-
-bool GestorMySQL::sum(int a, int b, int* res)
-{
-	*res = a + b;
-	return true;
 }
