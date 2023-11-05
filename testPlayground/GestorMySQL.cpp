@@ -8,6 +8,7 @@ GestorMySQL::GestorMySQL()
 	this->server = "localhost";
 	this->database = "guillen";
 	this->port = "3306";
+	//quita el conect despues de las pruebas
 	connect();
 }
 
@@ -36,11 +37,11 @@ bool GestorMySQL::disconnect()
 	try
 	{
 		mysql_close(conn);
+		return true;
 	}
 	catch (const std::exception&)
 	{
 		//log disconnect err
-		return false;
 	}
 	return true;
 }
@@ -107,7 +108,7 @@ bool GestorMySQL::ExecuteSELECTQuery(std::vector<std::string> SelectedColumns, s
 	}
 }
 
-std::string GestorMySQL::fetchFieldInRow(MYSQL_RES* res, MYSQL_ROW row, std::string field)
+std::string GestorMySQL::fetchFieldInRow(MYSQL_RES* res, MYSQL_ROW& row, std::string field)
 {
 	// convert field name to lowercase
 	std::transform(field.begin(), field.end(), field.begin(), ::tolower);

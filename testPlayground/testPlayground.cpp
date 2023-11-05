@@ -4,16 +4,24 @@
 //#include <opencv2/opencv.hpp>
 //#include <opencv2/imgproc.hpp>
 //#include <opencv2/highgui/highgui.hpp>
-#include <iostream>
 
 //using namespace cv;
 
+#ifdef _WIN32
+#define _WIN32_WINNT 0x0A00
+#endif
+
+//#define ASIO_STANDALONE
+#define ASIO_NO_DEPRECATED
+#include <boost/asio.hpp>
+#include <boost/asio/ts/buffer.hpp>
+#include <boost/asio/ts/internet.hpp>
+
 using namespace std;
 
-#include <chrono>
-#include <string>
-#include <vector>
-using namespace std::chrono;
+//#include <chrono>
+//#include <string>
+//#include <vector>
 
 
 #include <stdlib.h>
@@ -21,98 +29,202 @@ using namespace std::chrono;
 
 #include "rs232.h"
 #include "rs232lib.h"
-#include <Windows.h>
+//#include <Windows.h>
 
-#include "GestorMySQL.h"
+//#include "GestorMySQL.h"
 const string server = "tcp://localhost:3306";
 const string username = "root";
 const string password = "root";
 
-void selectQueryThread(GestorMySQL* gestor, std::string query, MYSQL_RES*& res);
+//void selectQueryThread(GestorMySQL* gestor, std::string query, MYSQL_RES*& res);
 
+//#include "LogManager.h"
+////Test on LogManager
+//int main() {
+//	string a;
+//	CLogManager logManager = CLogManager("testPlayground", "C:\\IDESAI\\PRUEBAS\\LOG\\test", 1);
+//	logManager.AddEntry("------------------- Inicio Test ----------------");
+//	logManager.AddEntry("Lore Ipsum Dolor !!#");
+//	
+//	logManager.AddEntry("------------------- Fin Test -------------------\n");
+//
+//	return 0;
+//}
+
+
+
+// Test on Asio
 int main() {
+	using namespace boost;
+    try
+    {
+        boost::system::error_code ec;
+        asio::io_context io_context;
+		//asio::ip::tcp::endpoint endpoint(asio::ip::make_address("192.168.222.69", ec), 420);
+        asio::ip::tcp::endpoint endpoint(asio::ip::make_address("127.0.0.1", ec), 420);
+        
+        asio::ip::tcp::socket socket(io_context);
+        
+		//connect with timeout
+        boost::asio::steady_timer timer(io_context);
+        timer.expires_after(boost::asio::chrono::milliseconds(5000));
+        timer.async_wait([&](const boost::system::error_code& ec) {
+            if (!ec)
+            socket.cancel();
+            });
+        
+        socket.async_connect(endpoint, [&](const boost::system::error_code& ec) {
+            timer.cancel();
+        if (ec)
+        {
+            std::cerr << "Connect error: " << ec.message() << "\n";
+        }
+        else
+        {
+            std::cout << "Successful connection\n";
+        }
+            });
+        io_context.run();
 
-	std::cout << "Hello World!\n";
-	std::vector<int> vect1{ 1, 2, 3, 4 };
-	std::vector<int> vect2;
-	std::vector<int> vect3;
+        
+        
+        //normal connect
+		/*socket.connect(endpoint, ec);
+        if (!ec)
+        {
+            std::cout << "Connected !" << std::endl;
+        }
+        else
+        {
+			std::cout << "Failed to connect to address: " << ec.message() << std::endl;
+        }*/
+        
 
-	vect3 = vect2;
-	
-	cout << "Vector 1 : ";
-	for (int i = 0; i < vect1.size(); i++)
-		cout << vect1[i] << " ";
-	cout << endl;
-	
-	cout << "Vector 2 : ";
-	for (int i = 0; i < vect2.size(); i++)
-		cout << vect2[i] << " ";
-	cout << endl;
+        std::promise<void> promise;
+        auto future = std::async(std::launch::async, [&io_context, &promise]() {
+            io_context.run();
+            promise.set_value();
+        });
+        
+        
 
-	cout << "Vector 3 : ";
-	for (int i = 0; i < vect3.size(); i++)
-		cout << vect3[i] << " ";
-	cout << endl;
-	
-	GestorMySQL* gestor = new GestorMySQL();
-	
-	MYSQL_RES* res1 = new MYSQL_RES();
-	std::string query = "SELECT Global_ID FROM guillen.bultos_procesados where Global_ID = '69';";
-	std::thread t1(selectQueryThread, gestor, query, std::ref(res1));
-	MYSQL_RES* res2 = new MYSQL_RES();
-	std::string query2 = "SELECT Global_ID FROM guillen.bultos_procesados where Global_ID = '70';";
-	std::thread t2(selectQueryThread, gestor, query2, std::ref(res2));
-	MYSQL_RES* res3 = new MYSQL_RES();
-	std::string query3 = "SELECT Global_ID FROM guillen.bultos_procesados WHERE INSTR(Global_ID, '001');";
-	std::thread t3(selectQueryThread, gestor, query3, std::ref(res3));
-	MYSQL_RES* res4 = new MYSQL_RES();
-	std::vector<std::string> SelectedColumns{ "Global_ID" , "PosicionPaquete" };
-	std::vector<std::vector<std::string>> SelectWhere{ {"Global_ID", "'0010'"}, {"PosicionPaquete", "1"} };
-	gestor->ExecuteSELECTQuery(SelectedColumns, SelectWhere, "guillen.bultos_procesados", res4);
-	
-	t1.join();
-	t2.join();
-	t3.join();
-	
-	//print result of query 1
-	std::cout << "Result of query 1: " << std::endl;
-	while (MYSQL_ROW row = mysql_fetch_row(res1))
-	{
-		std::cout << row[0] << std::endl;
-	}
-	
-	//print result of query 2
-	std::cout << "Result of query 2: " << std::endl;
-	while (MYSQL_ROW row = mysql_fetch_row(res2))
-	{
-		std::cout << row[0] << std::endl;
-	}
-	
-	//print result of query 3
-	std::cout << "Result of query 3: " << std::endl;
-	while (MYSQL_ROW row = mysql_fetch_row(res3))
-	{
-		std::cout << row[0] << std::endl;
-	}
-	
-	//print result of query 4
-	std::cout << "Result of query 4: " << std::endl;
-	while (MYSQL_ROW row = mysql_fetch_row(res4))
-	{
-		std::cout << row[0] << std::endl;
-	}
+        socket.wait(socket.wait_read);
+        
+		size_t bytes_available = socket.available();
+		std::cout << "Bytes available: " << bytes_available << std::endl;
 
-	
-	char lett = 0;
-	std::cin >> lett;
-	
+        if (bytes_available > 0)
+        {
+			std::vector<char> vBuffer(bytes_available);
+			socket.read_some(asio::buffer(vBuffer.data(), vBuffer.size()), ec);
+
+			for (auto c : vBuffer)
+			{
+				std::cout << c;
+			}
+			std::cout << std::endl;
+        }
+        
+  //      char reply[1024];
+		//size_t reply_length = asio::read(socket, asio::buffer(reply, 1024));
+		//std::cout << "Reply is: ";
+		//std::cout.write(reply, reply_length);
+  //      std::cout << "\n";
+  //      
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+    
 	return 0;
-	
 }
 
-void selectQueryThread(GestorMySQL* gestor, std::string query, MYSQL_RES*& res) {
-	gestor->ExecuteSELECTQuery(query, res);
-}
+
+
+//int main() {
+//
+//	std::cout << "Hello World!\n";
+//	std::vector<int> vect1{ 1, 2, 3, 4 };
+//	std::vector<int> vect2;
+//	std::vector<int> vect3;
+//
+//	vect3 = vect2;
+//	
+//	cout << "Vector 1 : ";
+//	for (int i = 0; i < vect1.size(); i++)
+//		cout << vect1[i] << " ";
+//	cout << endl;
+//	
+//	cout << "Vector 2 : ";
+//	for (int i = 0; i < vect2.size(); i++)
+//		cout << vect2[i] << " ";
+//	cout << endl;
+//
+//	cout << "Vector 3 : ";
+//	for (int i = 0; i < vect3.size(); i++)
+//		cout << vect3[i] << " ";
+//	cout << endl;
+//	
+//	GestorMySQL* gestorSQL = new GestorMySQL();
+//	
+//	MYSQL_RES* res1 = new MYSQL_RES();
+//	std::string query = "SELECT Global_ID FROM guillen.bultos_procesados where Global_ID = '69';";
+//	std::thread t1(selectQueryThread, gestorSQL, query, std::ref(res1));
+//	MYSQL_RES* res2 = new MYSQL_RES();
+//	std::string query2 = "SELECT Global_ID FROM guillen.bultos_procesados where Global_ID = '70';";
+//	std::thread t2(selectQueryThread, gestorSQL, query2, std::ref(res2));
+//	MYSQL_RES* res3 = new MYSQL_RES();
+//	std::string query3 = "SELECT * FROM guillen.bultos_procesados WHERE INSTR(Global_ID, '001');";
+//	std::thread t3(selectQueryThread, gestorSQL, query3, std::ref(res3));
+//	MYSQL_RES* res4 = new MYSQL_RES();
+//	std::vector<std::string> SelectedColumns{ "Global_ID" , "PosicionPaquete" };
+//	std::vector<std::vector<std::string>> SelectWhere{ {"Global_ID", "'0010'"}, {"PosicionPaquete", "1"} };
+//	gestorSQL->ExecuteSELECTQuery(SelectedColumns, SelectWhere, "guillen.bultos_procesados", res4);
+//	
+//	t1.join();
+//	t2.join();
+//	t3.join();
+//	
+//	//print result of query 1
+//	std::cout << "Result of query 1: " << std::endl;
+//	while (MYSQL_ROW row = mysql_fetch_row(res1))
+//	{
+//		std::cout << row[0] << std::endl;
+//	}
+//	
+//	//print result of query 2
+//	std::cout << "Result of query 2: " << std::endl;
+//	while (MYSQL_ROW row = mysql_fetch_row(res2))
+//	{
+//		std::cout << row[0] << std::endl;
+//	}
+//	
+//	//print result of query 3
+//	std::cout << "Result of query 3: " << std::endl;
+//	while (MYSQL_ROW row = mysql_fetch_row(res3))
+//	{
+//		std::cout << row[0] << std::endl;
+//	}
+//	
+//	//print result of query 4
+//	std::cout << "Result of query 4: " << std::endl;
+//	while (MYSQL_ROW row = mysql_fetch_row(res4))
+//	{
+//		std::cout << gestorSQL->fetchFieldInRow(res4, row, "lll") << std::endl;
+//	}
+//
+//	
+//	char lett = 0;
+//	std::cin >> lett;
+//	
+//	return 0;
+//	
+//}
+
+//void selectQueryThread(GestorMySQL* gestor, std::string query, MYSQL_RES*& res) {
+//	gestor->ExecuteSELECTQuery(query, res);
+//}
 
 // //RS232 test
 //int main() {
