@@ -85,52 +85,25 @@ int main() {
         }
             });
         io_context.run();
+        
+        while (true) {
+            boost::system::error_code ec;
+            std::array<char, 128> buf;
 
-        
-        
-        //normal connect
-		/*socket.connect(endpoint, ec);
-        if (!ec)
-        {
-            std::cout << "Connected !" << std::endl;
-        }
-        else
-        {
-			std::cout << "Failed to connect to address: " << ec.message() << std::endl;
-        }*/
-        
+            size_t len = socket.read_some(boost::asio::buffer(buf), ec);
 
-        std::promise<void> promise;
-        auto future = std::async(std::launch::async, [&io_context, &promise]() {
-            io_context.run();
-            promise.set_value();
-        });
-        
-        
+            if (ec == boost::asio::error::eof) {
+                std::cout << "Connection closed by peer." << std::endl;
+                break;
+            }
+            else if (ec) {
+                throw boost::system::system_error(ec); // Some other error.
+            }
 
-        socket.wait(socket.wait_read);
-        
-		size_t bytes_available = socket.available();
-		std::cout << "Bytes available: " << bytes_available << std::endl;
-
-        if (bytes_available > 0)
-        {
-			std::vector<char> vBuffer(bytes_available);
-			socket.read_some(asio::buffer(vBuffer.data(), vBuffer.size()), ec);
-
-			for (auto c : vBuffer)
-			{
-				std::cout << c;
-			}
-			std::cout << std::endl;
+            std::cout.write(buf.data(), len);
         }
         
-  //      char reply[1024];
-		//size_t reply_length = asio::read(socket, asio::buffer(reply, 1024));
-		//std::cout << "Reply is: ";
-		//std::cout.write(reply, reply_length);
-  //      std::cout << "\n";
-  //      
+        
     }
     catch (std::exception& e)
     {

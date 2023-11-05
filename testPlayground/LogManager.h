@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <chrono>
 
+#include <Windows.h>
 // LogManager class
 // Version 1.0
 // Versión guarra con el Sleep
