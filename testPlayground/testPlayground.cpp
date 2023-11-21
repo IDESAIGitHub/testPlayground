@@ -51,64 +51,151 @@ const string password = "root";
 //	return 0;
 //}
 
+#include <map>
+// Function to get error message based on error code
+std::string getErrorMessage(int error_code) {
+    static const std::map<int, std::string> error_table = {
+        {101, "Invalid item"},
+        {102, "Weght error"},
+        {103, "Underload"},
+        {104, "Overload"},
+        {105, "Length error. Item lenght below minimum or above maximum length"},
+        {106, "Gap to small"},
+        {107, "Measuring time below minimum"},
+        {108, "Speed changed during measurement"}
+    };
+    auto it = error_table.find(error_code);
+    if (it != error_table.end()) {
+        return it->second;
+    }
+    else {
+        return "Unknown error";
+    }
+}
 
+// Function to split a string
+std::vector<std::string> splitString(const std::string& s, char delimiter) {
+    std::vector<std::string> tokens;
+    std::stringstream ss(s);
+    std::string token;
+    while (getline(ss, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
 
-// Test on Asio
+#include <regex>
+// Test on Asio and regex
 int main() {
-	using namespace boost;
-    try
-    {
-        boost::system::error_code ec;
-        asio::io_context io_context;
-		//asio::ip::tcp::endpoint endpoint(asio::ip::make_address("192.168.222.69", ec), 420);
-        asio::ip::tcp::endpoint endpoint(asio::ip::make_address("127.0.0.1", ec), 420);
-        
-        asio::ip::tcp::socket socket(io_context);
-        
-		//connect with timeout
-        boost::asio::steady_timer timer(io_context);
-        timer.expires_after(boost::asio::chrono::milliseconds(5000));
-        timer.async_wait([&](const boost::system::error_code& ec) {
-            if (!ec)
-            socket.cancel();
-            });
-        
-        socket.async_connect(endpoint, [&](const boost::system::error_code& ec) {
-            timer.cancel();
-        if (ec)
-        {
-            std::cerr << "Connect error: " << ec.message() << "\n";
-        }
-        else
-        {
-            std::cout << "Successful connection\n";
-        }
-            });
-        io_context.run();
-        
-        while (true) {
-            boost::system::error_code ec;
-            std::array<char, 128> buf;
-
-            size_t len = socket.read_some(boost::asio::buffer(buf), ec);
-
-            if (ec == boost::asio::error::eof) {
-                std::cout << "Connection closed by peer." << std::endl;
-                break;
+	char stx = 0x02;
+	char etx = 0x03;
+    //std::string input = "\x02~~~~3.14kg~\x03"; // Example input string
+    std::string input1 = "\x02~~~0.00kg~\x03"; // Example PASS
+	std::string input2 = "\x02~~14.14kg~\x03"; // Example PASS
+	std::string input3 = "\x02~~3.14kg~\x03"; // Example NO
+	std::string input4 = "\x02~~~3.14kg~<ETX>"; // Example NO
+	std::string input5 = "\x02~~19.99kg~\x03"; // Example PASS
+    
+    std::regex ValidateData("^\x02([0-9|~]){3}\\d.\\d\\dkg~\x03$"); // Define the regex pattern
+    
+    
+    std::smatch matches;
+    
+    if (std::regex_search(input1, matches, ValidateData)) {
+        if (matches.size() >= 1) {
+            std::string captured = matches[0].str();
+            std::cout << "Captured pattern 1: " << captured << std::endl;
+            std::regex extractWeight("\\d+.\\d{2}");
+            if (std::regex_search(input1, matches, extractWeight)) {
+                if (matches.size() >= 1) {
+                    std::string captured = matches[0].str();
+                    std::vector<std::string> tokens = splitString(captured, '.');
+                }
             }
-            else if (ec) {
-                throw boost::system::system_error(ec); // Some other error.
+            else {
+                std::cout << "Capture group not found." << std::endl;
             }
-
-            std::cout.write(buf.data(), len);
         }
-        
-        
+        else {
+            std::cout << "Pattern1 not matched." << std::endl;
+        }
+
+        std::string input6 = "\x02\ERR101\x03"; // Example PASS
+        std::string input7 = "\x02\ERR102\x03"; // Example PASS
+        std::string input8 = "\x02\ERR 103\x03"; // Example NO
+        std::string input9 = "\x02\ ERR104\x03"; // Example NO
+        std::string input10 = "\x02\ERR108\x03"; // Example PASS
+        std::string input11 = "\x02\ERR109\x03"; // Example NO
+
+        std::regex ValidateErr("^\x02\ERR10[1-8]\x03$");
+        if (std::regex_search(input10, matches, ValidateErr)) {
+            if (matches.size() >= 1) {
+                std::string captured = matches[0].str();
+                std::cout << "Captured pattern 2: " << captured << std::endl;
+            }
+            else {
+                std::cout << "Capture group not found." << std::endl;
+            }
+        }
+        else {
+            std::cout << "Pattern2 not matched." << std::endl;
+        }
     }
-    catch (std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-    }
+	
+	//using namespace boost;
+ //   try
+ //   {
+ //       boost::system::error_code ec;
+ //       asio::io_context io_context;
+	//	//asio::ip::tcp::endpoint endpoint(asio::ip::make_address("192.168.222.69", ec), 420);
+ //       asio::ip::tcp::endpoint endpoint(asio::ip::make_address("127.0.0.1", ec), 420);
+ //       
+ //       asio::ip::tcp::socket socket(io_context);
+ //       
+	//	//connect with timeout
+ //       boost::asio::steady_timer timer(io_context);
+ //       timer.expires_after(boost::asio::chrono::milliseconds(5000));
+ //       timer.async_wait([&](const boost::system::error_code& ec) {
+ //           if (!ec)
+ //           socket.cancel();
+ //           });
+ //       
+ //       socket.async_connect(endpoint, [&](const boost::system::error_code& ec) {
+ //           timer.cancel();
+ //       if (ec)
+ //       {
+ //           std::cerr << "Connect error: " << ec.message() << "\n";
+ //       }
+ //       else
+ //       {
+ //           std::cout << "Successful connection\n";
+ //       }
+ //           });
+ //       io_context.run();
+ //       
+ //       while (true) {
+ //           boost::system::error_code ec;
+ //           std::array<char, 128> buf;
+
+ //           size_t len = socket.read_some(boost::asio::buffer(buf), ec);
+
+ //           if (ec == boost::asio::error::eof) {
+ //               std::cout << "Connection closed by peer." << std::endl;
+ //               break;
+ //           }
+ //           else if (ec) {
+ //               throw boost::system::system_error(ec); // Some other error.
+ //           }
+
+ //           std::cout.write(buf.data(), len);
+ //       }
+ //       
+ //       
+ //   }
+ //   catch (std::exception& e)
+ //   {
+ //       std::cerr << e.what() << std::endl;
+ //   }
     
 	return 0;
 }
